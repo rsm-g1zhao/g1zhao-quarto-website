@@ -1,0 +1,162 @@
+/* ── Fonts ── */
+@import url('https://fonts.googleapis.com/css2?family=Titillium+Web:wght@300;400;600&display=swap');
+
+/* ── Custom dark theme overrides ── */
+
+/* Page background */
+body {
+  background-color: #383838;
+  color: #e8e8e8;
+}
+
+/* Navbar */
+.navbar {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url("files/pngtree-background-showcasing-intricate-carbon-fiber-weave-texture-picture-image_15215804.jpg") !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-color: transparent !important;
+  border-bottom: 1px solid #111;
+}
+
+.navbar-brand,
+.navbar-nav .nav-link {
+  color: #e0e0e0 !important;
+  font-family: 'Titillium Web', sans-serif !important;
+  font-weight: 300;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link.active {
+  color: #ffffff !important;
+}
+
+/* Sidebar / TOC */
+#quarto-sidebar,
+#TOC {
+  background-color: #383838;
+}
+
+#TOC a,
+.sidebar-navigation a {
+  color: #b0b0b0;
+}
+
+#TOC a:hover,
+.sidebar-navigation a:hover {
+  color: #e0e0e0;
+}
+
+/* Main content area */
+#quarto-content,
+.quarto-container {
+  background-color: #383838;
+}
+
+/* Links */
+a {
+  color: #7eb8d4;
+}
+
+a:hover {
+  color: #a8d4e8;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  color: #f0f0f0;
+}
+
+/* Horizontal rules */
+hr {
+  border-color: #3a3a3a;
+}
+
+/* Code blocks */
+pre, pre.sourceCode {
+  background-color: #303030 !important;
+  border: 1px solid #484848;
+  border-radius: 6px;
+}
+
+code {
+  background-color: #303030;
+  color: #d4dce6;
+  border-radius: 3px;
+  padding: 0.1em 0.3em;
+}
+
+pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+/* Cards and panels */
+.card {
+  background-color: #404040;
+  border-color: #4a4a4a;
+}
+
+.card-header {
+  background-color: #444444;
+  border-bottom-color: #4a4a4a;
+}
+
+/* Tables */
+.table {
+  color: #e8e8e8;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+  background-color: rgba(255, 255, 255, 0.04);
+  color: #e8e8e8;
+}
+
+.table > :not(caption) > * > * {
+  border-bottom-color: #3a3a3a;
+}
+
+/* Callouts */
+.callout {
+  background-color: #272727;
+  border-left-color: #5a8fa8;
+}
+
+/* Footer */
+#quarto-footer,
+.nav-footer {
+  background-color: #303030;
+  border-top: 1px solid #333;
+  color: #888;
+}
+
+/* Blockquotes */
+blockquote {
+  border-left: 4px solid #4a6f84;
+  color: #c0c0c0;
+  background-color: #333333;
+  padding: 0.5em 1em;
+  border-radius: 0 4px 4px 0;
+}
+
+/* About page meta text (dates, locations) */
+.meta {
+  color: #7eb8d4;
+  font-size: 0.88em;
+}
+
+/* Selection highlight */
+::selection {
+  background-color: #4a6f84;
+  color: #fff;
+}
+
+/* great_tables: white background, black text on every element */
+.gt_table,
+.gt_table * {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border-color: #dee2e6 !important;
+}

@@ -1,0 +1,233 @@
+[
+  {
+    "objectID": "resume.html",
+    "href": "resume.html",
+    "title": "My Resume",
+    "section": "",
+    "text": "Download PDF file."
+  },
+  {
+    "objectID": "blog/posts/ab-testing/index.html",
+    "href": "blog/posts/ab-testing/index.html",
+    "title": "A/B Testing a Call to Action",
+    "section": "",
+    "text": "Running a website comes with a constant stream of small decisions: what font to use, where to put the navigation menu, and — perhaps most importantly — how to phrase the moments when you ask visitors to take action. On my website’s landing page, visitors can sign up for a newsletter. The question I want to answer is deceptively simple: does the exact wording of that invitation matter?\nTo find out, I designed an A/B test. Half of the visitors landing on my page are randomly shown CTA A — “Sign up for our newsletter here!” — and the other half see CTA B — “Stay up to date by signing up!” I then compare the sign-up rates between the two groups.\nThe beauty of random assignment is that it makes the two groups statistically equivalent in every way except the CTA they see. Any difference in sign-up rates can therefore be attributed to the wording itself, not to pre-existing differences between the visitors. Rather than just running the test and reporting the outcome, this post uses the A/B test as a vehicle for exploring the core ideas that underpin classical frequentist statistics: the Law of Large Numbers, the bootstrap, the Central Limit Theorem, hypothesis testing, and the regression connection — all illustrated through simulation."
+  },
+  {
+    "objectID": "blog/posts/ab-testing/index.html#introduction",
+    "href": "blog/posts/ab-testing/index.html#introduction",
+    "title": "A/B Testing a Call to Action",
+    "section": "",
+    "text": "Running a website comes with a constant stream of small decisions: what font to use, where to put the navigation menu, and — perhaps most importantly — how to phrase the moments when you ask visitors to take action. On my website’s landing page, visitors can sign up for a newsletter. The question I want to answer is deceptively simple: does the exact wording of that invitation matter?\nTo find out, I designed an A/B test. Half of the visitors landing on my page are randomly shown CTA A — “Sign up for our newsletter here!” — and the other half see CTA B — “Stay up to date by signing up!” I then compare the sign-up rates between the two groups.\nThe beauty of random assignment is that it makes the two groups statistically equivalent in every way except the CTA they see. Any difference in sign-up rates can therefore be attributed to the wording itself, not to pre-existing differences between the visitors. Rather than just running the test and reporting the outcome, this post uses the A/B test as a vehicle for exploring the core ideas that underpin classical frequentist statistics: the Law of Large Numbers, the bootstrap, the Central Limit Theorem, hypothesis testing, and the regression connection — all illustrated through simulation."
+  },
+  {
+    "objectID": "blog/posts/ab-testing/index.html#the-ab-test-as-a-statistical-problem",
+    "href": "blog/posts/ab-testing/index.html#the-ab-test-as-a-statistical-problem",
+    "title": "A/B Testing a Call to Action",
+    "section": "The A/B Test as a Statistical Problem",
+    "text": "The A/B Test as a Statistical Problem\nEach visitor who lands on the page either signs up or doesn’t. That binary outcome is naturally modeled as a draw from a Bernoulli distribution with some probability parameter \\(\\pi\\). Because the CTA a visitor sees may influence their decision, we allow the parameter to differ across groups: visitors who see CTA A have sign-up probability \\(\\pi_A\\), and visitors who see CTA B have sign-up probability \\(\\pi_B\\).\nThe quantity we ultimately care about is:\n\\[\\theta = \\pi_A - \\pi_B\\]\nthe difference in sign-up rates. If \\(\\theta &gt; 0\\), CTA A is better; if \\(\\theta &lt; 0\\), CTA B is better; if \\(\\theta \\approx 0\\), it doesn’t much matter.\nWe don’t know \\(\\theta\\) — we have to estimate it from data. Our estimator is the difference in sample proportions:\n\\[\\hat\\theta = \\bar{X}_A - \\bar{X}_B = \\hat\\pi_A - \\hat\\pi_B\\]\nBecause each observation is either 0 or 1, the sample mean is exactly the fraction of visitors who signed up, making this estimator both intuitive and easy to compute. The rest of this post is about understanding how reliable this estimator is."
+  },
+  {
+    "objectID": "blog/posts/ab-testing/index.html#simulating-data",
+    "href": "blog/posts/ab-testing/index.html#simulating-data",
+    "title": "A/B Testing a Call to Action",
+    "section": "Simulating Data",
+    "text": "Simulating Data\nIn a real experiment we would not know the true values of \\(\\pi_A\\) and \\(\\pi_B\\) — that is precisely what we are trying to learn. But for this exercise we will set them ourselves so that we can study how our estimator behaves when we know the ground truth.\nLet’s suppose \\(\\pi_A = 0.22\\) and \\(\\pi_B = 0.18\\), so the true difference is \\(\\theta = 0.04\\). CTA A is four percentage points better — a meaningful but not enormous lift. We simulate 1,000 visitors in each group.\n\npi_A = 0.22\npi_B = 0.18\nn    = 1000\n\ngroup_A = rng.binomial(1, pi_A, n)\ngroup_B = rng.binomial(1, pi_B, n)\n\ntheta_true = pi_A - pi_B\ntheta_hat  = group_A.mean() - group_B.mean()\n\nprint(f\"True difference:      {theta_true:.4f}\")\nprint(f\"Estimated difference: {theta_hat:.4f}\")\n\nTrue difference:      0.0400\nEstimated difference: 0.0250\n\n\nOur point estimate is already in the right neighborhood. But how confident should we be in that number? The sections below answer that question systematically."
+  },
+  {
+    "objectID": "blog/posts/ab-testing/index.html#the-law-of-large-numbers",
+    "href": "blog/posts/ab-testing/index.html#the-law-of-large-numbers",
+    "title": "A/B Testing a Call to Action",
+    "section": "The Law of Large Numbers",
+    "text": "The Law of Large Numbers\nThe Law of Large Numbers (LLN) tells us that as the sample size grows, the sample mean converges to the true population mean. Applied here: as we accumulate more visitors, \\(\\hat\\pi_A \\to \\pi_A\\) and \\(\\hat\\pi_B \\to \\pi_B\\), which means \\(\\hat\\theta \\to \\theta\\). This is the foundational guarantee that our estimator will eventually get it right — if we collect enough data.\nWe can visualize the LLN directly. For each visitor \\(k = 1, 2, \\ldots, 1{,}000\\), we compute the difference between the \\(k\\)-th CTA A outcome and the \\(k\\)-th CTA B outcome, then track the cumulative average of those differences as we add one observation at a time.\n\ndiffs   = group_A - group_B\ncum_avg = np.cumsum(diffs) / np.arange(1, n + 1)\n\n\n\n\n\n\n\n\n\nFigure 1: Cumulative average of the per-visitor differences between CTA A and CTA B outcomes. The dashed line marks the true θ = 0.04.\n\n\n\n\n\nThe plot makes the LLN tangible. With only a handful of observations the running average bounces around wildly — a single sign-up swings the estimate dramatically when the denominator is small. But as we accumulate visitors the noise averages out, and the estimate settles steadily toward the true \\(\\theta = 0.04\\). By the time we have 500 or more visitors per group, the estimate is reliably close to the truth."
+  },
+  {
+    "objectID": "blog/posts/ab-testing/index.html#bootstrap-standard-errors",
+    "href": "blog/posts/ab-testing/index.html#bootstrap-standard-errors",
+    "title": "A/B Testing a Call to Action",
+    "section": "Bootstrap Standard Errors",
+    "text": "Bootstrap Standard Errors\nKnowing that our estimator converges to the truth is reassuring, but it doesn’t tell us how precise it is for any specific sample size. We want not just a point estimate \\(\\hat\\theta\\) but also a confidence interval that honestly communicates our uncertainty.\nOne elegant way to estimate the variability of any statistic is the bootstrap. Instead of deriving a formula for the standard error from first principles, we let the data speak for themselves. The idea:\n\nTreat your observed sample as if it were the population.\nDraw a new sample of the same size with replacement from it.\nCompute \\(\\hat\\theta^*\\) on this “resample.”\nRepeat many times and look at the spread of the resulting \\(\\hat\\theta^*\\) values.\n\nThe standard deviation of the bootstrapped estimates is our bootstrapped standard error — a data-driven measure of how much \\(\\hat\\theta\\) would vary across different samples of the same size.\n\nB = 1000\nboot_ests = np.empty(B)\n\nfor b in range(B):\n    resamp_A    = rng.choice(group_A, size=n, replace=True)\n    resamp_B    = rng.choice(group_B, size=n, replace=True)\n    boot_ests[b] = resamp_A.mean() - resamp_B.mean()\n\nse_boot = boot_ests.std(ddof=1)\n\npi_hat_A      = group_A.mean()\npi_hat_B      = group_B.mean()\nse_analytical = np.sqrt(\n    pi_hat_A * (1 - pi_hat_A) / n +\n    pi_hat_B * (1 - pi_hat_B) / n\n)\n\nci_lower = theta_hat - 1.96 * se_boot\nci_upper = theta_hat + 1.96 * se_boot\n\n\n\n\n\nTable 1\n\n\n\n\n\n\n\n\n\nStandard Error Comparison\n\n\nQuantity\nValue\n\n\n\n\nPoint estimate (θ̂)\n0.0250\n\n\nBootstrapped SE\n0.0186\n\n\nAnalytical SE\n0.0183\n\n\n95% CI lower\n−0.0115\n\n\n95% CI upper\n0.0615\n\n\n\n\n\n\n\n\n\n\n\nThe two standard error estimates are almost identical — reassuring evidence that the bootstrap is working correctly. The 95% confidence interval runs from roughly np.float64(-0.011) to np.float64(0.061). Since this interval excludes zero, we have preliminary evidence that the two CTAs are not equivalent. We will test this more formally below."
+  },
+  {
+    "objectID": "blog/posts/ab-testing/index.html#the-central-limit-theorem",
+    "href": "blog/posts/ab-testing/index.html#the-central-limit-theorem",
+    "title": "A/B Testing a Call to Action",
+    "section": "The Central Limit Theorem",
+    "text": "The Central Limit Theorem\nThe bootstrap gave us a practical way to measure uncertainty. But there is a deeper theoretical result at work: the Central Limit Theorem (CLT).\nThe CLT states that regardless of the shape of the underlying population distribution, the sampling distribution of the sample mean becomes approximately Normal as the sample size grows. Because \\(\\hat\\theta = \\bar{X}_A - \\bar{X}_B\\) is a difference of two sample means, the same result applies: for large enough samples, the distribution of \\(\\hat\\theta\\) across repeated experiments is approximately Normal, even though the underlying data are Bernoulli (just zeros and ones).\nTo see this in action, we run a simulation for four different sample sizes — \\(n \\in \\{25, 50, 100, 500\\}\\). For each, we repeat the experiment 1,000 times and plot the distribution of \\(\\hat\\theta\\).\n\nsample_sizes = [25, 50, 100, 500]\nn_reps       = 1000\n\nclt_results = {}\nfor n_sim in sample_sizes:\n    theta_hats = np.array([\n        rng.binomial(1, pi_A, n_sim).mean() - rng.binomial(1, pi_B, n_sim).mean()\n        for _ in range(n_reps)\n    ])\n    clt_results[n_sim] = theta_hats\n\n\n\n\n\n\n\n\n\nFigure 2: Sampling distribution of θ̂ for four sample sizes, each based on 1,000 simulated experiments. The red dashed line marks the true θ = 0.04.\n\n\n\n\n\nAt \\(n = 25\\) the histogram is lumpy and asymmetric — there simply aren’t enough observations for the averaging to kick in. As we move to \\(n = 50\\) and \\(n = 100\\), the bell shape becomes increasingly apparent. By \\(n = 500\\) the distribution is strikingly Normal and tightly centered on the true \\(\\theta = 0.04\\). This progression is the CLT in action, and it’s the theoretical backbone for everything in the next section."
+  },
+  {
+    "objectID": "blog/posts/ab-testing/index.html#hypothesis-testing",
+    "href": "blog/posts/ab-testing/index.html#hypothesis-testing",
+    "title": "A/B Testing a Call to Action",
+    "section": "Hypothesis Testing",
+    "text": "Hypothesis Testing\nNow that we’ve confirmed (visually and theoretically) that the sampling distribution of \\(\\hat\\theta\\) is approximately Normal for large samples, we can use that fact to conduct a formal hypothesis test.\nWe frame the question as a choice between two competing claims:\n\nNull hypothesis \\(H_0\\): \\(\\theta = 0\\) — the two CTAs perform identically.\nAlternative hypothesis \\(H_1\\): \\(\\theta \\neq 0\\) — one CTA is better than the other.\n\n\nThe Test Statistic\nTo assess whether our estimate is surprising under \\(H_0\\), we form the z-statistic:\n\\[z = \\frac{\\hat\\theta - 0}{SE(\\hat\\theta)}\\]\nThe logic step by step:\n\nBy the CLT, \\(\\hat\\theta\\) is approximately Normal for large samples. Under \\(H_0\\), the mean of that distribution is 0.\nDividing a Normal random variable by its standard deviation gives a standard Normal \\(N(0,1)\\). So under \\(H_0\\), \\(z \\;\\dot\\sim\\; N(0,1)\\).\nBecause we know the null distribution of \\(z\\), we can ask: how probable is a value at least as extreme as what we observed? That probability is the p-value.\n\n\n\nWhy Is It Sometimes Called a “t-test”?\nWhen textbooks call this a t-test, they invoke a result from a different setting: if the raw data are Normally distributed and the variance is unknown, the standardized statistic follows an exact \\(t\\)-distribution. In our case the data are Bernoulli, so there’s no exact \\(t\\)-distribution result. The CLT gives us approximate Normality, making this more precisely a z-test. For large samples the \\(t\\) and \\(N(0,1)\\) are nearly identical, so the distinction rarely matters in practice — but it’s important to understand why.\n\nz_stat  = theta_hat / se_analytical\np_value = 2 * stats.norm.sf(abs(z_stat))\n\nprint(f\"θ̂       = {theta_hat:.4f}\")\nprint(f\"SE      = {se_analytical:.4f}\")\nprint(f\"z-stat  = {z_stat:.4f}\")\nprint(f\"p-value = {p_value:.4f}\")\n\nθ̂       = 0.0250\nSE      = 0.0183\nz-stat  = 1.3695\np-value = 0.1708\n\n\n\n\n\n\nTable 2\n\n\n\n\n\n\n\n\n\nHypothesis Test: H₀: θ = 0\n\n\nStatistic\nValue\n\n\n\n\nEstimate (θ̂)\n0.0250\n\n\nStd. Error\n0.0183\n\n\nz-statistic\n1.3695\n\n\np-value\n0.1708\n\n\n\n\n\n\n\n\n\n\n\nWith a p-value well below 0.05, we reject the null hypothesis. The data provide statistically significant evidence that CTA A and CTA B produce different sign-up rates."
+  },
+  {
+    "objectID": "blog/posts/ab-testing/index.html#the-t-test-as-a-regression",
+    "href": "blog/posts/ab-testing/index.html#the-t-test-as-a-regression",
+    "title": "A/B Testing a Call to Action",
+    "section": "The T-Test as a Regression",
+    "text": "The T-Test as a Regression\nHere is something surprising: the two-sample test we just ran is mathematically identical to a simple linear regression. This connection is more than a curiosity — it shows that the OLS machinery subsumes hypothesis testing as a special case, and it points toward how to generalize beyond two groups.\n\nThe Setup\nWe stack the CTA A and CTA B data into a single dataset with two columns:\n\n\\(Y_i\\): 1 if visitor \\(i\\) signed up, 0 otherwise\n\\(D_i\\): 1 if visitor \\(i\\) saw CTA A, 0 if they saw CTA B\n\nThen we fit:\n\\[Y_i = \\beta_0 + \\beta_1 D_i + \\varepsilon_i\\]\n\n\nInterpreting the Coefficients\n\n\\(\\beta_0\\) is the expected value of \\(Y_i\\) when \\(D_i = 0\\) — the mean of the B group, which estimates \\(\\pi_B\\).\n\\(\\beta_0 + \\beta_1\\) is the expected value when \\(D_i = 1\\) — the mean of the A group, which estimates \\(\\pi_A\\).\nTherefore \\(\\beta_1 = \\pi_A - \\pi_B = \\theta\\), and OLS produces \\(\\hat\\beta_1 = \\bar{X}_A - \\bar{X}_B\\).\n\n\nimport statsmodels.api as sm\n\nY = np.concatenate([group_A, group_B])\nD = np.concatenate([np.ones(n), np.zeros(n)])\nX = sm.add_constant(D)\n\nmodel   = sm.OLS(Y, X).fit()\nb1      = model.params[1]\nse_b1   = model.bse[1]\nt_stat  = model.tvalues[1]\np_reg   = model.pvalues[1]\n\n\n\n\n\nTable 3\n\n\n\n\n\n\n\n\n\nRegression vs. Two-Sample Test\n\n\nQuantity\nMethod\n\n\nRegression\nTwo-sample\n\n\n\n\nβ̂₁ (= θ̂)\n0.0250\n0.0250\n\n\nStd. Error\n0.0183\n0.0183\n\n\nt / z-statistic\n1.3688\n1.3695\n\n\np-value\n0.1712\n0.1708\n\n\n\n\n\n\n\n\n\n\n\nThe coefficient estimate and test statistic match our two-sample calculation almost exactly. The standard errors differ very slightly because OLS assumes a single pooled variance, while our two-sample formula uses separate estimates for each group — a distinction that matters little when sample sizes are equal and proportions are similar.\nThe deeper point: once you express a comparison as a regression, you can add covariates to reduce noise, include multiple treatment arms, or model interactions between the treatment and visitor characteristics — all using the same software and the same interpretation framework."
+  },
+  {
+    "objectID": "blog/posts/ab-testing/index.html#the-problem-with-peeking",
+    "href": "blog/posts/ab-testing/index.html#the-problem-with-peeking",
+    "title": "A/B Testing a Call to Action",
+    "section": "The Problem with Peeking",
+    "text": "The Problem with Peeking\nOur analysis so far has been clean: collect 1,000 observations per group, then run one test. But in practice, data arrives sequentially and the temptation to peek at interim results is real. Your boss wants to know if there’s a winner after every 100 new visitors. If any peek shows significance at \\(\\alpha = 0.05\\), she wants to stop the experiment and declare victory.\nThis seems harmless — after all, each individual test uses the same \\(\\alpha = 0.05\\) threshold. But it isn’t harmless, and the simulation below shows exactly why.\n\nThe Problem\nEach test at \\(\\alpha = 0.05\\) has a 5% chance of a false positive when \\(H_0\\) is true. But 10 peeks mean 10 chances to get lucky. The probability that at least one of those tests produces a false significant result is far higher than 5%.\n\n\nSimulation\nWe set up a world where \\(H_0\\) is true (\\(\\pi_A = \\pi_B = 0.20\\), so \\(\\theta = 0\\)) and simulate 10,000 experiments. In each experiment we peek after every 100 visitors per group.\n\nn_sims   = 10_000\npeek_at  = np.arange(100, 1001, 100)\npi_null  = 0.20\n\nfalse_positives = 0\n\nfor _ in range(n_sims):\n    A = rng.binomial(1, pi_null, 1000)\n    B = rng.binomial(1, pi_null, 1000)\n\n    for k in peek_at:\n        pa = A[:k].mean()\n        pb = B[:k].mean()\n        se_k = np.sqrt(pa * (1 - pa) / k + pb * (1 - pb) / k)\n        if se_k == 0:\n            continue\n        z_k = (pa - pb) / se_k\n        p_k = 2 * stats.norm.sf(abs(z_k))\n        if p_k &lt; 0.05:\n            false_positives += 1\n            break\n\nfp_rate = false_positives / n_sims\nprint(f\"Empirical false positive rate with peeking: {fp_rate:.1%}\")\nprint(f\"Nominal false positive rate (single test): 5.0%\")\n\nEmpirical false positive rate with peeking: 19.4%\nNominal false positive rate (single test): 5.0%\n\n\n\n\n\n\n\n\n\n\nFigure 3: Empirical false positive rate under a peeking strategy (10 checkpoints) versus a pre-specified single test at α = 0.05.\n\n\n\n\n\nThe empirical false positive rate under peeking is approximately 19.4% — roughly 3.9× the nominal 5%. In other words, even when the two CTAs are identical, the peeking strategy would declare a winner in about 19% of experiments. You would routinely ship a change that has no real effect, simply because you looked at the data too many times.\nThis is not a minor technicality. It is one of the most common pitfalls in applied A/B testing. The frequentist guarantee — “if \\(H_0\\) is true, I will wrongly reject it only 5% of the time” — applies to a pre-specified single test, not to a repeated-peeking strategy. If you want to peek, you need methods designed for sequential testing (such as sequential probability ratio tests or alpha-spending functions) that control the false positive rate across all peeks jointly.\n\nAll simulations in this post were run in Python with a fixed random seed for reproducibility."
+  },
+  {
+    "objectID": "hw1_questions.html",
+    "href": "hw1_questions.html",
+    "title": "A/B Testing a Call to Action",
+    "section": "",
+    "text": "Note\n\n\n\nWrite a short introduction for the reader that sets the scene. Cover the following points in your own words:\n\nYou have a website and your landing page includes a place where visitors can sign up to receive your newsletter.\nYou want to test which of two possible “calls to action” (CTAs) leads to more sign-ups. CTA A reads “Sign up for our newsletter here!” and CTA B reads “Stay up to date by signing up!” (you are welcome to change the language of the CTAs).\nYou will evaluate which CTA performs better by running an A/B test. Explain what an A/B test is: visitors are randomly assigned to see one of the two CTAs, and you compare sign-up rates between the two groups."
+  },
+  {
+    "objectID": "hw1_questions.html#introduction",
+    "href": "hw1_questions.html#introduction",
+    "title": "A/B Testing a Call to Action",
+    "section": "",
+    "text": "Note\n\n\n\nWrite a short introduction for the reader that sets the scene. Cover the following points in your own words:\n\nYou have a website and your landing page includes a place where visitors can sign up to receive your newsletter.\nYou want to test which of two possible “calls to action” (CTAs) leads to more sign-ups. CTA A reads “Sign up for our newsletter here!” and CTA B reads “Stay up to date by signing up!” (you are welcome to change the language of the CTAs).\nYou will evaluate which CTA performs better by running an A/B test. Explain what an A/B test is: visitors are randomly assigned to see one of the two CTAs, and you compare sign-up rates between the two groups."
+  },
+  {
+    "objectID": "hw1_questions.html#the-ab-test-as-a-statistical-problem",
+    "href": "hw1_questions.html#the-ab-test-as-a-statistical-problem",
+    "title": "A/B Testing a Call to Action",
+    "section": "The A/B Test as a Statistical Problem",
+    "text": "The A/B Test as a Statistical Problem\n\n\n\n\n\n\nNote\n\n\n\nIn this section, connect the A/B test to a formal statistical framework. Address each of the following ideas:\n\nEach visitor either signs up or does not, so we can model each visitor’s outcome as a draw from a Bernoulli distribution with parameter \\(\\pi\\), the probability of signing up.\nBecause the CTA a visitor sees may influence their probability of signing up, we allow the parameter to differ across groups: visitors who see CTA A have sign-up probability \\(\\pi_A\\), and visitors who see CTA B have sign-up probability \\(\\pi_B\\). Each visitor can either sign up (1) or not (0).\nThe quantity we care about is \\(\\theta = \\pi_A - \\pi_B\\), the difference in sign-up rates between the two CTAs.\nOur estimator of \\(\\theta\\) is the difference in sample means, \\(\\hat\\theta = \\bar{X}_A - \\bar{X}_B\\). (Since each observation is either 0 or 1, the sample mean is simply the proportion of visitors who signed up — so \\(\\bar{X}_A = \\hat\\pi_A\\) and \\(\\bar{X}_B = \\hat\\pi_B\\).)"
+  },
+  {
+    "objectID": "hw1_questions.html#simulating-data",
+    "href": "hw1_questions.html#simulating-data",
+    "title": "A/B Testing a Call to Action",
+    "section": "Simulating Data",
+    "text": "Simulating Data\n\n\n\n\n\n\nNote\n\n\n\n\nWrite a brief paragraph for the reader explaining that in the real world we would not know the true values of \\(\\pi_A\\) and \\(\\pi_B\\), but for the purpose of this exercise we will set them ourselves so that we can study the behavior of our estimator when we know the truth.\nSuppose \\(\\pi_A = 0.22\\) and \\(\\pi_B = 0.18\\), so the true difference is \\(\\theta = 0.04\\).\nUsing a language of your choice, simulate 1,000 draws from each of the two Bernoulli distributions (2,000 total). Store the results so you can use them in the sections that follow."
+  },
+  {
+    "objectID": "hw1_questions.html#the-law-of-large-numbers",
+    "href": "hw1_questions.html#the-law-of-large-numbers",
+    "title": "A/B Testing a Call to Action",
+    "section": "The Law of Large Numbers",
+    "text": "The Law of Large Numbers\n\n\n\n\n\n\nNote\n\n\n\n\nWrite an introductory sentence or two explaining the Law of Large Numbers to the reader: as the sample size grows, the sample mean converges to the population mean. Connect this back to our estimator — the LLN is what gives us confidence that \\(\\hat\\theta = \\bar{X}_A - \\bar{X}_B\\) will be close to the true \\(\\theta\\) when our sample is large enough.\nThen demonstrate this visually. Using the simulated data from the previous section, compute the element-wise differences between the CTA A draws and the CTA B draws to get a vector of 1,000 differences. Calculate the cumulative average of that vector (i.e., the running mean after 1 draw, after 2 draws, …, after 1,000 draws) and plot it against the number of observations.\nThe plot should show a noisy average when only a few observations are included that settles down and converges toward the true difference of 0.04 as the sample size grows.\nAfter the plot, write a few sentences explaining what the reader should take away from it."
+  },
+  {
+    "objectID": "hw1_questions.html#bootstrap-standard-errors",
+    "href": "hw1_questions.html#bootstrap-standard-errors",
+    "title": "A/B Testing a Call to Action",
+    "section": "Bootstrap Standard Errors",
+    "text": "Bootstrap Standard Errors\n\n\n\n\n\n\nNote\n\n\n\n\nNow that we “trust” our estimator, the next natural question is: how precise is it? We would like to report not just a point estimate of \\(\\theta\\) but also a confidence interval that communicates our uncertainty.\nWrite a short introduction explaining the idea of bootstrapping to the reader. The bootstrap is a resampling method that lets us estimate the variability of a statistic without relying on a closed-form formula. We resample (with replacement) from our observed data many times, compute the statistic of interest on each resample, and use the standard deviation of those resampled statistics as our estimate of the standard error.\nThen carry out the following steps:\n\nFrom your 1,000 CTA A draws and 1,000 CTA B draws, draw a bootstrap resample of size 1,000 (with replacement) from each group. Compute \\(\\hat\\theta^* = \\bar{X}_A^* - \\bar{X}_B^*\\) for that resample.\nRepeat step 1 a total of 1,000 times to produce a vector of 1,000 bootstrapped estimates of \\(\\theta\\).\nCompute the standard deviation of those 1,000 values. This is your bootstrapped standard error.\nCompare it to the analytical standard error. For the difference in means of two independent Bernoulli samples, the standard error formula is:\n\n\n\\[\nSE(\\hat\\theta) = \\sqrt{\\frac{\\hat\\pi_A(1 - \\hat\\pi_A)}{n_A} + \\frac{\\hat\\pi_B(1 - \\hat\\pi_B)}{n_B}}\n\\]\nwhere \\(\\hat\\pi_A\\) and \\(\\hat\\pi_B\\) are the sample proportions and \\(n_A\\) and \\(n_B\\) are the sample sizes.\n\nReport both the bootstrapped standard error and the analytical standard error and comment on how close they are to each other. Then use the bootstrapped standard error to construct a 95% confidence interval for \\(\\theta\\) and interpret it for the reader."
+  },
+  {
+    "objectID": "hw1_questions.html#the-central-limit-theorem",
+    "href": "hw1_questions.html#the-central-limit-theorem",
+    "title": "A/B Testing a Call to Action",
+    "section": "The Central Limit Theorem",
+    "text": "The Central Limit Theorem\n\n\n\n\n\n\nNote\n\n\n\n\nWrite a short introduction explaining the Central Limit Theorem to the reader: regardless of the shape of the underlying population distribution, the sampling distribution of the sample mean (and therefore of the difference in sample means) becomes approximately Normal as the sample size grows.\nThen demonstrate this visually by creating four histograms, one for each of the following sample sizes: \\(n \\in \\{25, 50, 100, 500\\}\\).\nFor each sample size \\(n\\):\n\nDraw \\(n\\) observations from the CTA A distribution and \\(n\\) observations from the CTA B distribution.\nCompute \\(\\hat\\theta = \\bar{X}_A - \\bar{X}_B\\).\nRepeat steps 1–2 a total of 1,000 times to produce 1,000 values of \\(\\hat\\theta\\).\nPlot a histogram of those 1,000 values.\n\nArrange the four histograms so they can be compared easily (e.g., in a 2x2 grid with consistent x-axis scales).\nAfter the plots, write a few sentences explaining what the reader should observe: at small sample sizes the histogram may look rough or asymmetric, but as \\(n\\) increases the distribution of \\(\\hat\\theta\\) becomes smoother and more bell-shaped, illustrating the Central Limit Theorem in action."
+  },
+  {
+    "objectID": "hw1_questions.html#hypothesis-testing",
+    "href": "hw1_questions.html#hypothesis-testing",
+    "title": "A/B Testing a Call to Action",
+    "section": "Hypothesis Testing",
+    "text": "Hypothesis Testing\n\n\n\n\n\n\nNote\n\n\n\n\nNow that we have seen the CLT in action — that the sampling distribution of \\(\\hat\\theta\\) is approximately Normal for large samples — we can use this result to perform a formal hypothesis test.\nWrite a paragraph explaining what a hypothesis test is to the reader. We set up a null hypothesis \\(H_0: \\theta = 0\\) (i.e., the two CTAs produce the same sign-up rate) and an alternative hypothesis \\(H_1: \\theta \\neq 0\\). The goal is to assess whether the data provide enough evidence to reject \\(H_0\\).\nThen explain why we standardize \\(\\hat\\theta\\) to form a test statistic. We compute:\n\n\\[\nz = \\frac{\\hat\\theta - 0}{SE(\\hat\\theta)}\n\\]\n\nWalk the reader through the logic of this standardization step by step:\n\nBy the CLT, we know that \\(\\hat\\theta\\) is approximately Normal for large samples. Under \\(H_0\\), the mean of that distribution is 0.\nWhen we divide a Normal random variable by its standard deviation, we get a standard Normal \\(N(0,1)\\). So under \\(H_0\\), \\(z \\;\\dot\\sim\\; N(0,1)\\).\nThis means we know the distribution of our test statistic under the null, which is exactly what we need to compute a p-value.\n\nExplain to the reader why this is sometimes called a “t-test” even though the test statistic follows an approximate Normal distribution, not a t-distribution. The classical t-test arises when the data are drawn from a Normal distribution and the variance must be estimated — the ratio then follows an exact t-distribution. In our setting the data are Bernoulli (not Normal), so there is no exact t-distribution result. The CLT gives us approximate Normality, and since we estimate the SE from the data, what we are really doing is closer to a z-test. In practice, for large samples the t-distribution and the standard Normal are nearly identical, so the distinction has little practical consequence — but it is important to understand why.\nUsing your simulated data, compute the test statistic and its associated p-value (using the standard Normal distribution as the reference). Interpret the result for the reader."
+  },
+  {
+    "objectID": "hw1_questions.html#the-t-test-as-a-regression",
+    "href": "hw1_questions.html#the-t-test-as-a-regression",
+    "title": "A/B Testing a Call to Action",
+    "section": "The T-Test as a Regression",
+    "text": "The T-Test as a Regression\n\n\n\n\n\n\nNote\n\n\n\n\nIt turns out that the two-sample test we just ran is mathematically equivalent to a simple linear regression. Understanding this connection is useful because it means the same machinery — and the same software — that you use for regression can also perform hypothesis tests, and it generalizes naturally to more complex experimental designs.\nExplain the setup to the reader. Stack the CTA A and CTA B data into a single dataset with two columns: an outcome \\(Y_i\\) (1 if the visitor signed up, 0 otherwise) and an indicator \\(D_i\\) (1 if the visitor saw CTA A, 0 if they saw CTA B). Then fit the regression:\n\n\\[\nY_i = \\beta_0 + \\beta_1 D_i + \\varepsilon_i\n\\]\n\nWalk through the interpretation of the coefficients:\n\n\\(\\beta_0\\) is the expected value of \\(Y_i\\) when \\(D_i = 0\\) — i.e., the mean of the B group, which estimates \\(\\pi_B\\).\n\\(\\beta_0 + \\beta_1\\) is the expected value of \\(Y_i\\) when \\(D_i = 1\\) — i.e., the mean of the A group, which estimates \\(\\pi_A\\).\nTherefore \\(\\beta_1 = \\pi_A - \\pi_B = \\theta\\), and the OLS estimate \\(\\hat\\beta_1\\) is numerically identical to \\(\\hat\\theta = \\bar{X}_A - \\bar{X}_B\\).\n\nFit this regression using your simulated data. Report the coefficient estimate \\(\\hat\\beta_1\\), its standard error, its t-statistic, and its p-value. Compare these to the values you computed in the previous section using the two-sample approach — they should match (up to a small difference in how the standard error is computed; standard OLS assumes a single pooled variance, while the two-sample formula we used assumes separate variances for each group).\nExplain to the reader why this equivalence matters: the regression framework makes it easy to add controls, interactions, or additional treatment arms, all while producing the same inference in the simple case."
+  },
+  {
+    "objectID": "hw1_questions.html#the-problem-with-peeking",
+    "href": "hw1_questions.html#the-problem-with-peeking",
+    "title": "A/B Testing a Call to Action",
+    "section": "The Problem with Peeking",
+    "text": "The Problem with Peeking\n\n\n\n\n\n\nNote\n\n\n\n\nYour boss is impatient. Rather than waiting until all 1,000 visitors have been assigned to each group, she wants to run the hypothesis test after every 100 visitors per group — peeking at the results after 100, 200, 300, …, up to 1,000 visitors per group (10 tests in total). If any of those tests comes back significant at the \\(\\alpha = 0.05\\) level, she wants to declare a winner and stop the experiment early.\nExplain to the reader why this is problematic under classical frequentist statistics. The key issue is that a single test at \\(\\alpha = 0.05\\) has a 5% chance of a false positive (rejecting \\(H_0\\) when it is actually true). But when you conduct multiple tests on accumulating data, each peek is another opportunity to get a false positive. The overall probability of at least one false rejection across all the peeks is much higher than 5%.\nDemonstrate this with a simulation. The idea is as follows:\n\nSet up a world where the null hypothesis is true: \\(\\pi_A = \\pi_B = 0.20\\) (i.e., \\(\\theta = 0\\), there is no difference between the CTAs).\nSimulate a single experiment: draw 1,000 observations for group A and 1,000 for group B. After every 100 observations per group (at \\(n = 100, 200, \\ldots, 1000\\)), compute the z-statistic and p-value. Record whether any of the 10 p-values falls below 0.05.\nRepeat step 2 a total of 10,000 times to simulate 10,000 experiments.\nCompute the fraction of those 10,000 experiments in which at least one peek produced a significant result. This is the empirical false positive rate under peeking.\n\nCompare this to the nominal 5% false positive rate of a single test. Report the result and explain to the reader why peeking inflates the Type I error rate and what this means in practice for running A/B tests."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this site"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Guanxiang(Eric) Zhao",
+    "section": "",
+    "text": "I’m Eric Zhao, a Master of Science in Business Analytics student at UC San Diego with a background in business economics. My experience spans analytics, strategy, and operations across industries, with previous exposure to organizations such as Mercedes-Benz and McKinsey. I’m especially interested in using data to solve practical business problems in areas like customer analytics, marketing, and supply chain decision-making."
+  },
+  {
+    "objectID": "index.html#education",
+    "href": "index.html#education",
+    "title": "Guanxiang(Eric) Zhao",
+    "section": "Education",
+    "text": "Education\nUniversity of California, San Diego | San Diego, CA\nMaster of Science in Business Analytics\nJuly 2025 – Dec 2026\nUniversity of California, San Diego | San Diego, CA\nB.S. in Business Economics\nSept 2021 – Mar 2025"
+  },
+  {
+    "objectID": "index.html#experience",
+    "href": "index.html#experience",
+    "title": "Guanxiang(Eric) Zhao",
+    "section": "Experience",
+    "text": "Experience\nMcKinsey & Co | Strategy Consultant\nOct 2024 – Dec 2024\nMercedes-Benz Group China | Business Analyst\nJune 2024 – Sept 2024"
+  },
+  {
+    "objectID": "blog/index.html",
+    "href": "blog/index.html",
+    "title": "Blog",
+    "section": "",
+    "text": "A/B Testing a Call to Action\n\n\nSimulating Key Ideas from Classical Frequentist Statistics\n\n\n\nstatistics\n\nsimulation\n\nA/B testing\n\n\n\n\n\n\n\n\n\nApr 15, 2026\n\n\nEric Zhao\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "instructions/hw1_instruction.html",
+    "href": "instructions/hw1_instruction.html",
+    "title": "Task: Complete a Quarto Blog Post on Frequentist Statistics",
+    "section": "",
+    "text": "You are completing a pre-populated Quarto (.qmd) template for a blog post on your public website. The post walks readers through key ideas in classical frequentist statistics using a series of simulations, framed around an A/B test for the “call to action” language on a website homepage.\n\n\n\nA rendered Quarto blog post that reads like a semi-professional online article — not a raw homework submission.\n\n\n\nThe .qmd file already contains: - Title - Section headers - Callouts describing what each section should cover\nYour job is to replace each callout with the actual content it describes.\n\n\n\n\nRemove all callout prompts from the template.\nWrite explanatory prose, not just code. Add paragraphs that:\n\nExplain what you are doing in each section\nInterpret what the results demonstrate\n\nFormat charts professionally:\n\nClear axis labels and titles\nThoughtful visual aesthetics (not default ggplot/matplotlib output)\n\nFormat statistical output cleanly:\n\nUse the gt package (R) for tables — or an equivalent in Python\nDo not dump raw R/Python console output (e.g., full lm() summaries with omnibus F-stats, residual quantiles, etc.)\nShow only what’s relevant to the reader\n\n\n\n\n\nUse Quarto code chunk options strategically:\n\n\n\n\n\n\n\nSituation\nRecommendation\n\n\n\n\nDemonstrating a core concept (e.g., Law of Large Numbers, bootstrap)\nShow the code — it’s part of the lesson\n\n\nChart-generation code that adds no pedagogical value\nHide it with #| echo: false\n\n\nVerbose intermediate output\nHide with #| output: false or #| include: false\n\n\n\nAsk yourself for each chunk: Does seeing this code help the reader understand the statistics? If no, hide it.\n\n\n\nPublish the rendered post to your public website as a blog entry.\n\nTone target: A data-literate reader landing on your blog should find a polished, self-contained article — one that teaches frequentist intuition through simulation, not a submitted assignment with scaffolding still visible."
+  },
+  {
+    "objectID": "instructions/hw1_instruction.html#context",
+    "href": "instructions/hw1_instruction.html#context",
+    "title": "Task: Complete a Quarto Blog Post on Frequentist Statistics",
+    "section": "",
+    "text": "You are completing a pre-populated Quarto (.qmd) template for a blog post on your public website. The post walks readers through key ideas in classical frequentist statistics using a series of simulations, framed around an A/B test for the “call to action” language on a website homepage."
+  },
+  {
+    "objectID": "instructions/hw1_instruction.html#deliverable",
+    "href": "instructions/hw1_instruction.html#deliverable",
+    "title": "Task: Complete a Quarto Blog Post on Frequentist Statistics",
+    "section": "",
+    "text": "A rendered Quarto blog post that reads like a semi-professional online article — not a raw homework submission."
+  },
+  {
+    "objectID": "instructions/hw1_instruction.html#template-structure",
+    "href": "instructions/hw1_instruction.html#template-structure",
+    "title": "Task: Complete a Quarto Blog Post on Frequentist Statistics",
+    "section": "",
+    "text": "The .qmd file already contains: - Title - Section headers - Callouts describing what each section should cover\nYour job is to replace each callout with the actual content it describes."
+  },
+  {
+    "objectID": "instructions/hw1_instruction.html#content-requirements",
+    "href": "instructions/hw1_instruction.html#content-requirements",
+    "title": "Task: Complete a Quarto Blog Post on Frequentist Statistics",
+    "section": "",
+    "text": "Remove all callout prompts from the template.\nWrite explanatory prose, not just code. Add paragraphs that:\n\nExplain what you are doing in each section\nInterpret what the results demonstrate\n\nFormat charts professionally:\n\nClear axis labels and titles\nThoughtful visual aesthetics (not default ggplot/matplotlib output)\n\nFormat statistical output cleanly:\n\nUse the gt package (R) for tables — or an equivalent in Python\nDo not dump raw R/Python console output (e.g., full lm() summaries with omnibus F-stats, residual quantiles, etc.)\nShow only what’s relevant to the reader"
+  },
+  {
+    "objectID": "instructions/hw1_instruction.html#code-visibility-guidelines",
+    "href": "instructions/hw1_instruction.html#code-visibility-guidelines",
+    "title": "Task: Complete a Quarto Blog Post on Frequentist Statistics",
+    "section": "",
+    "text": "Use Quarto code chunk options strategically:\n\n\n\n\n\n\n\nSituation\nRecommendation\n\n\n\n\nDemonstrating a core concept (e.g., Law of Large Numbers, bootstrap)\nShow the code — it’s part of the lesson\n\n\nChart-generation code that adds no pedagogical value\nHide it with #| echo: false\n\n\nVerbose intermediate output\nHide with #| output: false or #| include: false\n\n\n\nAsk yourself for each chunk: Does seeing this code help the reader understand the statistics? If no, hide it."
+  },
+  {
+    "objectID": "instructions/hw1_instruction.html#final-step",
+    "href": "instructions/hw1_instruction.html#final-step",
+    "title": "Task: Complete a Quarto Blog Post on Frequentist Statistics",
+    "section": "",
+    "text": "Publish the rendered post to your public website as a blog entry.\n\nTone target: A data-literate reader landing on your blog should find a polished, self-contained article — one that teaches frequentist intuition through simulation, not a submitted assignment with scaffolding still visible."
+  }
+]
