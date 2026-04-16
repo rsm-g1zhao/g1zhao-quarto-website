@@ -19,3 +19,4 @@ format:
     theme: darkly
     css: styles.css
     toc: true
+    highlight-style: dracula
