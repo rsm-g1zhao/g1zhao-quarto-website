@@ -1,5 +1,6 @@
 ---
 title: "Guanxiang(Eric) Zhao"
+toc: false
 about:
   template: trestles
   image: files/profile_pic.jpg

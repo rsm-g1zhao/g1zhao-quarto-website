@@ -1,17 +1,17 @@
 /* ── Fonts ── */
-@import url('https://fonts.googleapis.com/css2?family=Titillium+Web:wght@300;400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Titillium+Web:wght@300;400;600&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&display=swap');
 
-/* ── Custom dark theme overrides ── */
+/* ── Custom parchment theme ── */
 
 /* Page background */
 body {
-  background-color: #383838;
-  color: #e8e8e8;
+  background-color: #f5edd8;
+  color: #2c2416;
 }
 
 /* Navbar */
 .navbar {
-  background-image: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url("files/pngtree-background-showcasing-intricate-carbon-fiber-weave-texture-picture-image_15215804.jpg") !important;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)), url("files/pngtree-background-showcasing-intricate-carbon-fiber-weave-texture-picture-image_15215804.jpg") !important;
   background-size: cover !important;
   background-position: center !important;
   background-color: transparent !important;
@@ -36,54 +36,75 @@ body {
 /* Sidebar / TOC */
 #quarto-sidebar,
 #TOC {
-  background-color: #383838;
+  background-color: #f0e4c8;
 }
 
 #TOC a,
 .sidebar-navigation a {
-  color: #b0b0b0;
+  color: #5c4a2a;
 }
 
 #TOC a:hover,
 .sidebar-navigation a:hover {
-  color: #e0e0e0;
+  color: #2c2416;
 }
 
 /* Main content area */
 #quarto-content,
 .quarto-container {
-  background-color: #383838;
+  background-color: #f5edd8;
 }
 
 /* Links */
 a {
-  color: #7eb8d4;
+  color: #4a6e8a;
 }
 
 a:hover {
-  color: #a8d4e8;
+  color: #2e5068;
 }
 
 /* Headings */
 h1, h2, h3, h4, h5, h6 {
-  color: #f0f0f0;
+  color: #1e1408;
 }
 
 /* Horizontal rules */
 hr {
-  border-color: #3a3a3a;
+  border-color: #c8b89a;
 }
 
-/* Code blocks */
-pre, pre.sourceCode {
-  background-color: #303030 !important;
-  border: 1px solid #484848;
+/* Code blocks — dark Dracula theme */
+pre, pre.sourceCode,
+.sourceCode,
+div.sourceCode {
+  background-color: #282a36 !important;
+  border: 1px solid #44475a !important;
   border-radius: 6px;
+  color: #f8f8f2 !important;
+}
+
+/* Code fold toggle */
+details.code-fold > summary,
+.quarto-code-fold-toggle {
+  background-color: #3a3c4a !important;
+  color: #b0b4c8 !important;
+  border-color: #44475a !important;
+  border-radius: 6px !important;
+  font-size: 0.78rem !important;
+  padding: 3px 10px !important;
+  opacity: 0.75;
+  transition: opacity 0.2s;
+}
+
+details.code-fold > summary:hover,
+.quarto-code-fold-toggle:hover {
+  opacity: 1;
 }
 
 code {
-  background-color: #303030;
-  color: #d4dce6;
+  background-color: #282a36;
+  color: #f8f8f2;
   border-radius: 3px;
   padding: 0.1em 0.3em;
 }
@@ -95,68 +116,117 @@ pre code {
 
 /* Cards and panels */
 .card {
-  background-color: #404040;
-  border-color: #4a4a4a;
+  background-color: #ede0c3;
+  border-color: #c8b89a;
 }
 
 .card-header {
-  background-color: #444444;
-  border-bottom-color: #4a4a4a;
+  background-color: #e8d8b8;
+  border-bottom-color: #c8b89a;
 }
 
 /* Tables */
 .table {
-  color: #e8e8e8;
+  color: #2c2416;
 }
 
 .table-striped > tbody > tr:nth-of-type(odd) > * {
-  background-color: rgba(255, 255, 255, 0.04);
-  color: #e8e8e8;
+  background-color: rgba(0, 0, 0, 0.03);
+  color: #2c2416;
 }
 
 .table > :not(caption) > * > * {
-  border-bottom-color: #3a3a3a;
+  border-bottom-color: #c8b89a;
 }
 
 /* Callouts */
 .callout {
-  background-color: #272727;
-  border-left-color: #5a8fa8;
+  background-color: #ede0c3;
+  border-left-color: #4a6e8a;
 }
 
 /* Footer */
 #quarto-footer,
 .nav-footer {
-  background-color: #303030;
-  border-top: 1px solid #333;
-  color: #888;
+  background-color: #e8d8b8;
+  border-top: 1px solid #c8b89a;
+  color: #7a6a50;
 }
 
 /* Blockquotes */
 blockquote {
-  border-left: 4px solid #4a6f84;
-  color: #c0c0c0;
-  background-color: #333333;
+  border-left: 4px solid #8a6e4a;
+  color: #5c4a2a;
+  background-color: #ede0c3;
   padding: 0.5em 1em;
   border-radius: 0 4px 4px 0;
 }
 
+/* About page font */
+.about-contents,
+.about-entity {
+  font-family: 'Source Serif 4', serif;
+  font-weight: 400;
+  font-size: 1.02rem;
+  line-height: 1.75;
+}
+
 /* About page meta text (dates, locations) */
 .meta {
-  color: #7eb8d4;
+  color: #7a5c3a;
   font-size: 0.88em;
+}
+
+/* About page link buttons */
+.about-link {
+  color: #2c2416 !important;
+  border-color: #8a7a60 !important;
+  background-color: transparent !important;
+}
+
+.about-link:hover {
+  color: #1e1408 !important;
+  border-color: #2c2416 !important;
+  background-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+.about-link-text {
+  color: #2c2416 !important;
+}
+
+/* Blog listing */
+.listing-date,
+.listing-author {
+  color: #7a6a50 !important;
+}
+
+.listing-title,
+.listing-title a {
+  color: #1e1408 !important;
+}
+
+.listing-description,
+.listing-description a,
+.delink.listing-description {
+  color: #3a2e1e !important;
+}
+
+.listing-subtitle,
+.quarto-post .listing-subtitle,
+.listing-subtitle a,
+.quarto-post .listing-subtitle a {
+  color: #5c4a2a !important;
+  opacity: 1 !important;
+}
+
+.listing-category {
+  color: #4a3a24 !important;
+  border-color: #8a7a60 !important;
+  background-color: transparent !important;
 }
 
 /* Selection highlight */
 ::selection {
-  background-color: #4a6f84;
+  background-color: #8a6e4a;
   color: #fff;
-}
-
-/* great_tables: white background, black text on every element */
-.gt_table,
-.gt_table * {
-  background-color: #ffffff !important;
-  color: #000000 !important;
-  border-color: #dee2e6 !important;
 }

@@ -4,7 +4,7 @@ project:
 
 
 website:
-  title: "Eric Zhao's Website"
+  title: "Eric Zhao"
   navbar:
     left:
       - href: index.qmd
