@@ -308,3 +308,16 @@ plt.show()
 **Why DiD enables a causal conclusion.** A simple before-and-after comparison of NJ stores would confound the minimum wage with any other event that occurred between the two surveys (e.g., a regional recession). A simple NJ-vs-PA comparison would confound the wage increase with any permanent differences between the two states (e.g., New Jersey being more urban). Differencing twice—across time *and* across states—cancels both threats simultaneously, leaving only variation that is *both* state-specific *and* time-varying. Under the parallel-trends assumption, the only state-specific time-varying shock was the minimum wage increase itself, so the DiD estimate is causal.
 
 Card and Krueger's finding—that the minimum wage increase had no detectable negative effect on employment, and possibly a positive one—sparked decades of debate and fundamentally changed how economists model labor markets, motivating theories of monopsony and search frictions that can accommodate a zero or positive employment response to minimum wage increases.
+
+
+## Conclusion
+
+This replication closely matches the original Card and Krueger (1994) estimates.
+The DiD estimate of +2.75 FTE and the GAP coefficient of ~15.65 both point in
+the same direction: the April 1992 minimum wage increase in New Jersey did not
+reduce fast-food employment relative to Pennsylvania. While this single study
+cannot settle the broader policy debate—later work by Neumark and Wascher (2000)
+reached different conclusions using payroll data—Card and Krueger's natural
+experiment remains a landmark in applied econometrics for demonstrating how
+quasi-experimental variation can support causal inference without a randomized
+trial.
