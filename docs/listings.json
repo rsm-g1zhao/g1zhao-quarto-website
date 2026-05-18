@@ -2,6 +2,7 @@
   {
     "listing": "/blog/index.html",
     "items": [
+      "/blog/posts/blueprinty-poisson/index.html",
       "/blog/posts/card-krueger-1994/index.html",
       "/blog/posts/ab-testing/index.html"
     ]
