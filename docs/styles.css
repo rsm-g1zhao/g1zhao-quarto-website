@@ -230,3 +230,43 @@ blockquote {
   background-color: #8a6e4a;
   color: #fff;
 }
+
+/* ── Panel tabset tabs — parchment theme ── */
+.panel-tabset .nav-tabs {
+  border-bottom: 2px solid #c8b89a;
+  gap: 2px;
+}
+
+.panel-tabset .nav-tabs .nav-link {
+  color: #5c4a2a;
+  background-color: rgba(0, 0, 0, 0.04);
+  border: 1px solid transparent;
+  border-radius: 4px 4px 0 0;
+  margin-bottom: -2px;
+  padding: 0.45rem 1.1rem;
+  font-family: 'Titillium Web', sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.panel-tabset .nav-tabs .nav-link:hover:not(.active) {
+  color: #2c2416;
+  background-color: rgba(0, 0, 0, 0.08);
+  border-color: #c8b89a #c8b89a transparent;
+}
+
+.panel-tabset .nav-tabs .nav-link.active {
+  color: #1e1408;
+  font-weight: 600;
+  background-color: #f5edd8;         /* matches page background */
+  border-color: #c8b89a #c8b89a #f5edd8; /* bottom merges with page */
+}
+
+.panel-tabset .tab-content {
+  border: 1px solid #c8b89a;
+  border-top: none;                  /* nav-tabs bottom border covers this */
+  border-radius: 0 6px 6px 6px;     /* square top-left (under active tab), round elsewhere */
+  padding: 0.75rem 0.6rem 0.5rem;
+  overflow-x: hidden;                /* prevent horizontal scrollbar */
+}
